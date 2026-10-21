@@ -87,30 +87,7 @@
   .unit { font-size: 1.1rem; color: var(--muted); }
   #eggcount { color: var(--accent); font-size: 0.95rem; margin-top: 6px; }
 
-  .seg {
-    display: flex;
-    gap: 8px;
-    margin-top: 14px;
-  }
-  .seg button {
-    flex: 1;
-    padding: 10px;
-    font-size: 1rem;
-    font-weight: 600;
-    border: 2px solid var(--line);
-    border-radius: 10px;
-    background: var(--card);
-    color: var(--ink);
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .seg button.active {
-    border-color: var(--accent);
-    background: var(--accent-soft);
-  }
-  .seg button .dot { margin-right: 4px; }
-
-  .spice-row {
+  .opt-row {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -118,8 +95,7 @@
     font-size: 0.95rem;
     color: var(--ink);
   }
-  .spice-row input { width: 18px; height: 18px; accent-color: var(--accent); }
-  .spice-row small { color: var(--muted); }
+  .opt-row input { width: 18px; height: 18px; accent-color: var(--accent); }
 
   table { width: 100%; border-collapse: collapse; }
   td { padding: 9px 4px; border-bottom: 1px solid var(--line); vertical-align: baseline; }
@@ -201,14 +177,14 @@
     </div>
     <div id="eggcount"></div>
 
-    <div class="seg">
-      <button id="modeVanilla" class="active" type="button"><span class="dot">🍦</span>Ванильный</button>
-      <button id="modeChoc" type="button"><span class="dot">🍫</span>Шоколадный</button>
+    <div class="opt-row">
+      <input type="checkbox" id="cocoa">
+      <label for="cocoa">🍫 Шоколадный — добавить какао (муки тогда меньше)</label>
     </div>
 
-    <div class="spice-row">
+    <div class="opt-row">
       <input type="checkbox" id="spice">
-      <label for="spice">Пряный (корица, бадьян — приправа без соли и перца!)</label>
+      <label for="spice">🌟 Пряный (корица, бадьян — приправа без соли и перца!)</label>
     </div>
   </div>
 
@@ -283,7 +259,7 @@ var R = {
   saltG: 2
 };
 
-var state = { eggs: 560, mode: "vanilla", spice: false };
+var state = { eggs: 560, cocoa: false, spice: false };
 
 function r5(x)  { return Math.round(x / 5) * 5; }
 function r05(x) { return Math.round(x * 2) / 2; }
@@ -295,7 +271,7 @@ function tsp(grams, gPerTsp) {
 
 function calc() {
   var eggs = state.eggs;
-  var choc = state.mode === "choc";
+  var choc = state.cocoa;
   var res = {
     eggs: eggs,
     sugar: r5(R.sugar * eggs),
@@ -360,14 +336,10 @@ document.getElementById("eggs").addEventListener("input", function () {
   render();
 });
 
-function setMode(m) {
-  state.mode = m;
-  document.getElementById("modeVanilla").className = m === "vanilla" ? "active" : "";
-  document.getElementById("modeChoc").className = m === "choc" ? "active" : "";
+document.getElementById("cocoa").addEventListener("change", function () {
+  state.cocoa = this.checked;
   render();
-}
-document.getElementById("modeVanilla").addEventListener("click", function () { setMode("vanilla"); });
-document.getElementById("modeChoc").addEventListener("click", function () { setMode("choc"); });
+});
 document.getElementById("spice").addEventListener("change", function () {
   state.spice = this.checked;
   render();
@@ -376,9 +348,8 @@ document.getElementById("spice").addEventListener("change", function () {
 document.getElementById("copyBtn").addEventListener("click", function () {
   if (!lastResult) return;
   var r = lastResult;
-  var name = state.mode === "choc" ? "Шоколадный" : "Ванильный";
   var lines = [];
-  lines.push("🍰 Бисквит " + name.toLowerCase() + " (в одну чашу)");
+  lines.push("🍰 Бисквит " + (state.cocoa ? "шоколадный " : "") + "(в одну чашу)");
   lines.push("");
   lines.push("Ингредиенты:");
   lines.push("• Яйца — " + fmt(r.eggs) + " г (≈" + Math.round(r.eggs / 50) + " шт.)");
