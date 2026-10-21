@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Бисквит-калькулятор 🍰</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🍰</text></svg>">
+<style>
+  :root {
+    --bg: #faf6f0;
+    --card: #ffffff;
+    --ink: #3a2a1e;
+    --muted: #9a8878;
+    --accent: #a05f2c;
+    --accent-soft: #f3e5d8;
+    --line: #eadfd3;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.5;
+    padding: 24px 16px 60px;
+  }
+  .wrap { max-width: 560px; margin: 0 auto; }
+  h1 { font-size: 1.6rem; text-align: center; margin-bottom: 4px; }
+  .sub { text-align: center; color: var(--muted); font-size: 0.9rem; margin-bottom: 20px; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(60, 40, 20, 0.05);
+  }
+
+  .eggs-row { display: flex; align-items: center; gap: 14px; }
+  .eggs-row label { font-weight: 600; white-space: nowrap; }
+  #eggs {
+    font-size: 1.6rem;
+    font-weight: 700;
+    width: 130px;
+    padding: 8px 12px;
+    border: 2px solid var(--accent);
+    border-radius: 10px;
+    text-align: center;
+    color: var(--ink);
+    background: #fff;
+  }
+  #eggs:focus { outline: 3px solid var(--accent-soft); }
+  .unit { font-size: 1.1rem; color: var(--muted); }
+  #eggcount { color: var(--accent); font-size: 0.95rem; margin-top: 6px; }
+
+  .seg {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+  }
+  .seg button {
+    flex: 1;
+    padding: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    border: 2px solid var(--line);
+    border-radius: 10px;
+    background: #fff;
+    color: var(--ink);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .seg button.active {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .seg button .dot { margin-right: 4px; }
+
+  .spice-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 14px;
+    font-size: 0.95rem;
+    color: var(--ink);
+  }
+  .spice-row input { width: 18px; height: 18px; accent-color: var(--accent); }
+  .spice-row small { color: var(--muted); }
+
+  table { width: 100%; border-collapse: collapse; }
+  td { padding: 9px 4px; border-bottom: 1px solid var(--line); vertical-align: baseline; }
+  tr:last-child td { border-bottom: none; }
+  td.name { font-weight: 600; }
+  td.name small { display: block; font-weight: 400; color: var(--muted); font-size: 0.8rem; }
+  td.val { text-align: right; white-space: nowrap; }
+  td.val b { font-size: 1.15rem; }
+  td.val span { color: var(--muted); font-size: 0.85rem; }
+
+  .batter {
+    text-align: center;
+    margin-top: 12px;
+    padding: 10px;
+    background: var(--accent-soft);
+    border-radius: 10px;
+    font-weight: 600;
+  }
+
+  .bake h3 { margin-bottom: 10px; font-size: 1.05rem; }
+  .bake .temp { font-weight: 700; color: var(--accent); margin-bottom: 10px; }
+  .bake .option { margin-bottom: 8px; }
+  .bake .option b { display: inline-block; min-width: 130px; }
+  .bake .warn {
+    margin-top: 10px;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+
+  details { margin-bottom: 0; }
+  summary {
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1.05rem;
+    padding: 4px 0;
+  }
+  .steps { margin-top: 10px; }
+  .steps li { margin-bottom: 8px; }
+
+  #copyBtn {
+    display: block;
+    width: 100%;
+    margin-top: 18px;
+    padding: 14px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #fff;
+    background: var(--accent);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+  }
+  #copyBtn:hover { filter: brightness(1.08); }
+  #copyBtn.done { background: #4a8a3f; }
+
+  .footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.8rem;
+    margin-top: 24px;
+  }
+  .footer code { background: var(--accent-soft); padding: 1px 6px; border-radius: 6px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🍰 Бисквит-калькулятор</h1>
+  <p class="sub">Веди вес яиц — остальное посчитается само. Всё в граммах.</p>
+
+  <div class="card">
+    <div class="eggs-row">
+      <label for="eggs">Яйца, г:</label>
+      <input id="eggs" type="number" inputmode="decimal" min="50" max="5000" step="10" value="560">
+      <span class="unit">г</span>
+    </div>
+    <div id="eggcount"></div>
+
+    <div class="seg">
+      <button id="modeVanilla" class="active" type="button"><span class="dot">🍦</span>Ванильный</button>
+      <button id="modeChoc" type="button"><span class="dot">🍫</span>Шоколадный</button>
+    </div>
+
+    <div class="spice-row">
+      <input type="checkbox" id="spice">
+      <label for="spice">Пряный (корица, бадьян — приправа без соли и перца!)</label>
+    </div>
+  </div>
+
+  <div class="card">
+    <table id="ingredients"></table>
+    <div class="batter" id="batter"></div>
+  </div>
+
+  <div class="card bake">
+    <h3>⏲️ Выпекание</h3>
+    <div class="temp">170–175 °C</div>
+    <div id="bakeOptions"></div>
+    <div class="warn">Первые 30 минут духовку не открывать. Готовность — деревянная шпажка из центра выходит сухой.</div>
+  </div>
+
+  <div class="card">
+    <details>
+      <summary>Как готовить (в одну чашу планетарного миксера)</summary>
+      <ol class="steps">
+        <li>Духовку включить на 170–175 °C, форму смазать маслом и присыпать мукой (или застелить бумагой).</li>
+        <li>Яйца и сахар — в чашу миксера, взбивать 3–4 минуты на средней скорости, чтобы масса посветлела и сахар растворился.</li>
+        <li>Влить масло и воду, перемешать минуту на низкой скорости.</li>
+        <li>Просеять в чашу муку вместе с содой, лимонной кислотой и солью (и какао, если шоколадный; и специями, если пряный). Мешать на низкой около минуты до однородности, один раз соскрести лопаткой со дна.</li>
+        <li>Тесто сразу вылить в форму и поставить в духовку — не давать стоять!</li>
+        <li>Готовому бисквиту дать постоять 15 минут в форме, потом вынуть на решётку. Сверху — сахарная пудра.</li>
+      </ol>
+    </details>
+  </div>
+
+  <button id="copyBtn" type="button">📋 Скопировать рецепт (для мессенджера)</button>
+
+  <p class="footer">
+    Пропорции на 100 г яиц: сахар 66 · мука 54 (или 47 + какао 16) · масло 36 · вода 28 · сода 0,7 · лимонная кислота 0,7<br>
+    Сделано для семейной чайной паузы ❤️
+  </p>
+</div>
+
+<script>
+"use strict";
+
+// Пропорции на 1 г яиц (выведены из базового рецепта: 560 г яиц)
+var R = {
+  sugar: 0.657,
+  oil:   0.356,
+  water: 0.277,
+  soda:  0.00714,   // ≈ 4 г на 560 г яиц (1 ч. л. без горки)
+  acid:  0.00714,   // лимонная кислота, столько же
+  flourVanilla: 0.536,
+  flourChoc:    0.4732,
+  cocoa:        0.1577,
+  spice:        0.008,
+  saltG: 2
+};
+
+var state = { eggs: 560, mode: "vanilla", spice: false };
+
+function r5(x)  { return Math.round(x / 5) * 5; }
+function r05(x) { return Math.round(x * 2) / 2; }
+function fmt(x) { return x.toLocaleString("ru-RU"); }
+function tsp(grams, gPerTsp) {
+  var t = Math.round((grams / gPerTsp) * 2) / 2;
+  return t.toLocaleString("ru-RU");
+}
+
+function calc() {
+  var eggs = state.eggs;
+  var choc = state.mode === "choc";
+  var res = {
+    eggs: eggs,
+    sugar: r5(R.sugar * eggs),
+    flour: r5(choc ? R.flourChoc * eggs : R.flourVanilla * eggs),
+    cocoa: choc ? r5(R.cocoa * eggs) : 0,
+    oil:   r5(R.oil * eggs),
+    water: r5(R.water * eggs),
+    soda:  r05(R.soda * eggs),
+    acid:  r05(R.acid * eggs),
+    spice: state.spice ? r05(R.spice * eggs) : 0,
+    salt:  R.saltG
+  };
+  res.batter = res.eggs + res.sugar + res.flour + res.cocoa + res.oil +
+                res.water + res.soda + res.acid + res.spice + res.salt;
+  return res;
+}
+
+function bakeGuide(kg) {
+  if (kg <= 1.35) {
+    return { one: ["форма 24 см", "40–50 минут"], two: ["две формы 20 см", "25–30 минут"] };
+  } else if (kg <= 1.85) {
+    return { one: ["форма 26 см", "45–55 минут"], two: ["две формы 20–22 см", "30–35 минут"] };
+  }
+  return { one: ["форма 26–28 см (высокая)", "55–70 минут"], two: ["две формы 22–24 см", "35–40 минут"] };
+}
+
+function rowsHTML(r) {
+  var rows = [];
+  rows.push(["Яйца", fmt(r.eggs) + " г", "≈ " + Math.round(r.eggs / 50) + " шт."]);
+  rows.push(["Сахар", fmt(r.sugar) + " г", ""]);
+  rows.push(["Мука пшеничная", fmt(r.flour) + " г", ""]);
+  if (r.cocoa) rows.push(["Какао-порошок", fmt(r.cocoa) + " г", ""]);
+  rows.push(["Масло растительное", fmt(r.oil) + " г", "без запаха"]);
+  rows.push(["Вода", fmt(r.water) + " г", ""]);
+  rows.push(["Сода", fmt(r.soda) + " г", "≈ " + tsp(r.soda, 4.5) + " ч. л. без горки"]);
+  rows.push(["Лимонная кислота", fmt(r.acid) + " г", "≈ " + tsp(r.acid, 5) + " ч. л."]);
+  if (r.spice) rows.push(["Приправа «восточный вкус»", fmt(r.spice) + " г", "≈ " + tsp(r.spice, 3) + " ч. л., без соли!"]);
+  rows.push(["Соль", "щепотка", "~2 г"]);
+
+  return rows.map(function (row) {
+    return "<tr><td class='name'>" + row[0] +
+      (row[2] ? "<small>" + row[2] + "</small>" : "") +
+      "</td><td class='val'><b>" + row[1] + "</b></td></tr>";
+  }).join("");
+}
+
+function render() {
+  var r = calc();
+  document.getElementById("ingredients").innerHTML = rowsHTML(r);
+  document.getElementById("batter").textContent = "Всего теста: ≈ " + fmt(r.batter) + " г";
+  var cnt = Math.round(state.eggs / 50);
+  document.getElementById("eggcount").textContent = "≈ " + cnt + " яиц по 50 г (крупные)";
+  var g = bakeGuide(r.batter / 1000);
+  document.getElementById("bakeOptions").innerHTML =
+    "<div class='option'><b>" + g.one[0] + "</b> — " + g.one[1] + "</div>" +
+    "<div class='option'><b>" + g.two[0] + "</b> — " + g.two[1] + "</div>";
+  lastResult = r;
+}
+
+var lastResult = null;
+
+document.getElementById("eggs").addEventListener("input", function () {
+  var v = parseFloat(this.value.replace(",", "."));
+  if (isNaN(v)) v = 560;
+  state.eggs = Math.min(5000, Math.max(50, v));
+  render();
+});
+
+function setMode(m) {
+  state.mode = m;
+  document.getElementById("modeVanilla").className = m === "vanilla" ? "active" : "";
+  document.getElementById("modeChoc").className = m === "choc" ? "active" : "";
+  render();
+}
+document.getElementById("modeVanilla").addEventListener("click", function () { setMode("vanilla"); });
+document.getElementById("modeChoc").addEventListener("click", function () { setMode("choc"); });
+document.getElementById("spice").addEventListener("change", function () {
+  state.spice = this.checked;
+  render();
+});
+
+document.getElementById("copyBtn").addEventListener("click", function () {
+  if (!lastResult) return;
+  var r = lastResult;
+  var name = state.mode === "choc" ? "Шоколадный" : "Ванильный";
+  var lines = [];
+  lines.push("🍰 Бисквит " + name.toLowerCase() + " (в одну чашу)");
+  lines.push("");
+  lines.push("Ингредиенты:");
+  lines.push("• Яйца — " + fmt(r.eggs) + " г (≈" + Math.round(r.eggs / 50) + " шт.)");
+  lines.push("• Сахар — " + fmt(r.sugar) + " г");
+  lines.push("• Мука — " + fmt(r.flour) + " г");
+  if (r.cocoa) lines.push("• Какао — " + fmt(r.cocoa) + " г");
+  lines.push("• Масло растительное без запаха — " + fmt(r.oil) + " г");
+  lines.push("• Вода — " + fmt(r.water) + " г");
+  lines.push("• Сода — " + fmt(r.soda) + " г (≈" + tsp(r.soda, 4.5) + " ч. л. без горки)");
+  lines.push("• Лимонная кислота — " + fmt(r.acid) + " г (≈" + tsp(r.acid, 5) + " ч. л.)");
+  if (r.spice) lines.push("• Приправа «восточный вкус» (без соли!) — " + fmt(r.spice) + " г");
+  lines.push("• Соль — щепотка");
+  lines.push("");
+  lines.push("Как готовить:");
+  lines.push("1. Духовку на 170–175 °C, форму смазать и присыпать мукой.");
+  lines.push("2. Яйца и сахар взбивать 3–4 мин до посветления.");
+  lines.push("3. Влить масло и воду, минуту на низкой скорости.");
+  lines.push("4. Просеять муку + соду + лимонную кислоту + соль" + (r.cocoa ? " + какао" : "") + (r.spice ? " + специи" : "") + ", мешать ~минуту, соскрести со дна.");
+  lines.push("5. Сразу в форму и в духовку!");
+  lines.push("");
+  var g = bakeGuide(r.batter / 1000);
+  lines.push("Печь при 170–175 °C: " + g.one[0] + " — " + g.one[1] + " (или " + g.two[0] + " — " + g.two[1] + ").");
+  lines.push("Первые 30 мин не открывать, шпажка из центра — сухая. Остудить 15 мин в форме.");
+  var text = lines.join("\n");
+
+  var btn = this;
+  function done() {
+    btn.textContent = "✅ Скопировано!";
+    btn.classList.add("done");
+    setTimeout(function () {
+      btn.textContent = "📋 Скопировать рецепт (для мессенджера)";
+      btn.classList.remove("done");
+    }, 2000);
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done, function () { fallbackCopy(text, done); });
+  } else {
+    fallbackCopy(text, done);
+  }
+});
+
+function fallbackCopy(text, done) {
+  var ta = document.createElement("textarea");
+  ta.value = text;
+  ta.style.position = "fixed";
+  ta.style.opacity = "0";
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand("copy"); done(); } catch (e) {}
+  document.body.removeChild(ta);
+}
+
+render();
+</script>
+</body>
+</html>
