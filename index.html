@@ -8,9 +8,7 @@
 (function () {
   var t;
   try { t = localStorage.getItem("theme"); } catch (e) {}
-  if (t !== "dark" && t !== "light") {
-    t = window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-  }
+  if (t !== "dark" && t !== "light") { t = "dark"; }
   document.documentElement.setAttribute("data-theme", t);
 })();
 </script>
@@ -254,7 +252,7 @@ function applyTheme(t) {
   document.documentElement.setAttribute("data-theme", t);
   themeBtn.textContent = t === "dark" ? "☀️" : "🌙";
 }
-applyTheme(document.documentElement.getAttribute("data-theme") || "light");
+applyTheme(document.documentElement.getAttribute("data-theme") || "dark");
 themeBtn.addEventListener("click", function () {
   var next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
   try { localStorage.setItem("theme", next); } catch (e) {}
