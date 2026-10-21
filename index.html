@@ -277,6 +277,19 @@ var R = {
 };
 
 var state = { eggs: 560, cocoa: false, spice: false };
+(function restoreState() {
+  try {
+    var saved = JSON.parse(localStorage.getItem("biskvitState") || "null");
+    if (saved) {
+      if (typeof saved.eggs === "number" && saved.eggs >= 50 && saved.eggs <= 5000) state.eggs = saved.eggs;
+      if (typeof saved.cocoa === "boolean") state.cocoa = saved.cocoa;
+      if (typeof saved.spice === "boolean") state.spice = saved.spice;
+    }
+  } catch (e) {}
+  document.getElementById("eggs").value = state.eggs;
+  document.getElementById("cocoa").checked = state.cocoa;
+  document.getElementById("spice").checked = state.spice;
+})();
 
 function r5(x)  { return Math.round(x / 5) * 5; }
 function r05(x) { return Math.round(x * 2) / 2; }
@@ -334,6 +347,7 @@ function rowsHTML(r) {
 
 function render() {
   document.getElementById("chocoDecor").classList.toggle("on", state.cocoa);
+  try { localStorage.setItem("biskvitState", JSON.stringify(state)); } catch (e) {}
   var r = calc();
   document.getElementById("ingredients").innerHTML = rowsHTML(r);
   document.getElementById("batter").textContent = "Всего теста: ≈ " + fmt(r.batter) + " г";
