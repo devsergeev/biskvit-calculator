@@ -15,13 +15,13 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🍰</text></svg>">
 <style>
   :root {
-    --bg: #faf6f0;
-    --card: #ffffff;
-    --ink: #3a2a1e;
-    --muted: #9a8878;
-    --accent: #a05f2c;
-    --accent-soft: #f3e5d8;
-    --line: #eadfd3;
+    --bg: #e8dcc9;
+    --card: #f6efe4;
+    --ink: #37271b;
+    --muted: #8d7a66;
+    --accent: #99572a;
+    --accent-soft: #e9d7c2;
+    --line: #d9cab4;
     color-scheme: light;
   }
   html[data-theme="dark"] {
@@ -33,6 +33,15 @@
     --accent-soft: #382b20;
     --line: #3a2f27;
     color-scheme: dark;
+  }
+  body.cocoa {
+    background-color: #46260f;
+    background-image:
+      radial-gradient(circle 29px at 31px 31px, rgba(255,232,205,.10) 55%, rgba(255,232,205,.22) 96%, transparent 100%),
+      radial-gradient(circle 29px at 33px 33px, transparent 55%, rgba(20,8,2,.35) 96%, transparent 100%),
+      radial-gradient(circle 30px at 32px 32px, rgba(255,226,196,.07) 0 35%, transparent 60%),
+      radial-gradient(circle 29px at 32px 32px, #6d3f1f 0 100%);
+    background-size: 64px 64px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -316,6 +325,7 @@ function rowsHTML(r) {
 }
 
 function render() {
+  document.body.classList.toggle("cocoa", state.cocoa);
   var r = calc();
   document.getElementById("ingredients").innerHTML = rowsHTML(r);
   document.getElementById("batter").textContent = "Всего теста: ≈ " + fmt(r.batter) + " г";
