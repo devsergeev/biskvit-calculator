@@ -34,15 +34,34 @@
     --line: #3a2f27;
     color-scheme: dark;
   }
-  body.cocoa {
-    background-color: #46260f;
+  .choco-decor {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+    background-color: #27201a;
     background-image:
-      radial-gradient(circle 29px at 31px 31px, rgba(255,232,205,.10) 55%, rgba(255,232,205,.22) 96%, transparent 100%),
-      radial-gradient(circle 29px at 33px 33px, transparent 55%, rgba(20,8,2,.35) 96%, transparent 100%),
-      radial-gradient(circle 30px at 32px 32px, rgba(255,226,196,.07) 0 35%, transparent 60%),
-      radial-gradient(circle 29px at 32px 32px, #6d3f1f 0 100%);
-    background-size: 64px 64px;
+      repeating-linear-gradient(0deg,  transparent 0 54px, rgba(0,0,0,.30) 54px 55px, transparent 55px 64px),
+      repeating-linear-gradient(90deg, transparent 0 54px, rgba(0,0,0,.30) 54px 55px, transparent 55px 64px),
+      repeating-linear-gradient(0deg,  transparent 0 3px,  rgba(217,154,91,.12) 3px 4px, transparent 4px 64px),
+      repeating-linear-gradient(90deg, transparent 0 3px,  rgba(217,154,91,.12) 3px 4px, transparent 4px 64px),
+      repeating-linear-gradient(0deg,  #1b1411 0 3px, transparent 3px 64px),
+      repeating-linear-gradient(90deg, #1b1411 0 3px, transparent 3px 64px);
   }
+  .choco-decor.on { opacity: 1; }
+  .choco-decor::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 120px;
+    background-repeat: repeat-x;
+    background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='360'%20height='120'%20viewBox='0%200%20360%20120'%3E%3Cpath%20fill='%23d99a5b'%20d='M0%200H360V36L304%2036Q304%2096%20284%2096Q264%2096%20264%2036L216%2036Q216%2066%20204%2066Q192%2066%20192%2036L148%2036Q148%20108%20126%20108Q104%20108%20104%2036L56%2036Q56%2060%2046%2060Q36%2060%2036%2036L0%2036Z'/%3E%3C/svg%3E");
+    transform: translateY(-40px);
+    transition: transform 1s ease-out;
+  }
+  .choco-decor.on::before { transform: none; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -173,6 +192,7 @@
 </style>
 </head>
 <body>
+<div class="choco-decor" id="chocoDecor"></div>
 <div class="wrap">
   <button id="themeBtn" class="theme-btn" type="button" title="Переключить тему">🌙</button>
   <h1>🍰 Бисквит-калькулятор</h1>
@@ -325,7 +345,7 @@ function rowsHTML(r) {
 }
 
 function render() {
-  document.body.classList.toggle("cocoa", state.cocoa);
+  document.getElementById("chocoDecor").classList.toggle("on", state.cocoa);
   var r = calc();
   document.getElementById("ingredients").innerHTML = rowsHTML(r);
   document.getElementById("batter").textContent = "Всего теста: ≈ " + fmt(r.batter) + " г";
